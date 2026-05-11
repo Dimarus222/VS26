@@ -1,939 +1,484 @@
+
+
+```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Боевой Континент | Soul Land Universe</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Raleway:wght@400;600;800&display=swap" rel="stylesheet">
-  <style>
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-    :root {
-      --bg-scroll: #f5f0e8; --bg-card: #ffffff;
-      --text-primary: #1a1a2e; --text-secondary: #5a5a6e; --text-heading: #0d0d1a;
-      --accent-gold: #b8860b; --accent-gold-light: #d4a843; --accent-blue: #1e3a5f;
-      --accent-spirit: #7c3aed; --accent-blood: #b91c1c; --accent-emerald: #059669;
-      --border-mystic: rgba(184,134,11,0.3); --border-light: rgba(0,0,0,0.06);
-      --shadow-card: 0 6px 32px rgba(0,0,0,0.07); --shadow-gold: 0 10px 40px rgba(184,134,11,0.18);
-      --font-display: 'Cinzel', serif; --font-body: 'Raleway', sans-serif;
-      --transition-smooth: cubic-bezier(0.76, 0, 0.24, 1);
-      --radius-xl: 1.6rem; --radius-full: 100px;
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Soul Continent | Боевой Континент: Путь Души</title>
+  <!-- Tailwind via CDN + Three.js & OrbitControls -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.128.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.128.0/examples/jsm/"
+      }
     }
-    html { scroll-behavior: smooth; background: var(--bg-scroll); color: var(--text-primary); font-family: var(--font-body); line-height: 1.7; -webkit-font-smoothing: antialiased; }
-    body { overflow-x: hidden; background-image: radial-gradient(ellipse at 25% 0%, rgba(184,134,11,0.05) 0%, transparent 55%), radial-gradient(ellipse at 75% 100%, rgba(30,58,95,0.04) 0%, transparent 55%); background-attachment: fixed; }
-    ::-webkit-scrollbar { width: 5px; } ::-webkit-scrollbar-track { background: #e0dbd0; } ::-webkit-scrollbar-thumb { background: var(--accent-gold); border-radius: 3px; }
-    h1, h2, h3, .logo { font-family: var(--font-display); font-weight: 900; color: var(--text-heading); text-transform: uppercase; letter-spacing: 0.03em; }
-    h1 { font-size: clamp(3rem, 9vw, 6rem); line-height: 0.95; }
-    h2 { font-size: clamp(2rem, 6vw, 3.2rem); margin-bottom: 1rem; position: relative; display: inline-block; }
-    h2::after { content: ''; position: absolute; bottom: -8px; left: 0; width: 55%; height: 3px; background: linear-gradient(90deg, var(--accent-gold), transparent); border-radius: 2px; }
-    .container { max-width: 1300px; margin: 0 auto; padding: 0 2rem; }
-
-    #preloader { position: fixed; inset: 0; background: var(--bg-scroll); z-index: 10000; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.5rem; transition: opacity 0.6s var(--transition-smooth), visibility 0.6s; }
-    #preloader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    .spirit-ring-loader { width: 70px; height: 70px; border-radius: 50%; border: 3px solid transparent; border-top-color: var(--accent-gold); border-right-color: var(--accent-spirit); animation: spinRing 1.1s linear infinite; position: relative; }
-    .spirit-ring-loader::after { content: ''; position: absolute; inset: 12px; border-radius: 50%; border: 2px solid transparent; border-bottom-color: var(--accent-gold-light); border-left-color: var(--accent-spirit); animation: spinRing 0.7s linear infinite reverse; }
-    @keyframes spinRing { to { transform: rotate(360deg); } }
-
-    .header { position: sticky; top: 0; z-index: 100; background: rgba(255,255,255,0.9); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); border-bottom: 1px solid var(--border-mystic); box-shadow: 0 2px 24px rgba(0,0,0,0.04); padding: 0.9rem 0; }
-    .header .container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-    .logo { font-size: 1.5rem; color: var(--accent-gold); display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
-    .logo-sub { font-size: 0.6rem; background: var(--accent-blue); color: #fff; padding: 0.25rem 0.7rem; border-radius: var(--radius-full); font-weight: 800; letter-spacing: 0.08em; }
-    .nav-links { display: flex; gap: 1.5rem; list-style: none; flex-wrap: wrap; align-items: center; }
-    .nav-links a { color: var(--text-secondary); text-decoration: none; font-weight: 700; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.08em; cursor: pointer; padding: 0.4rem 0; border-bottom: 2px solid transparent; transition: all 0.3s; }
-    .nav-links a:hover, .nav-links a.active { color: var(--accent-gold); border-bottom-color: var(--accent-gold); }
-    .nav-links a.nav-cabinet { background: linear-gradient(135deg, var(--accent-gold), #9e6d0e); color: #fff !important; padding: 0.5rem 1.3rem; border-radius: var(--radius-full); border-bottom: none !important; font-size: 0.78rem; }
-    .nav-links a.nav-cabinet:hover { box-shadow: 0 4px 24px rgba(184,134,11,0.4); transform: translateY(-2px); }
-    .user-mini-header { display: flex; align-items: center; gap: 0.8rem; }
-    .btn-logout { font-size: 0.7rem; color: var(--accent-blood); cursor: pointer; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; background: none; border: none; }
-    .burger { display: none; flex-direction: column; gap: 5px; cursor: pointer; }
-    .burger span { width: 28px; height: 2px; background: var(--text-heading); }
-
-    .page { display: none; animation: fadeSlideIn 0.5s var(--transition-smooth); padding-top: 1.5rem; min-height: 80vh; }
-    .page.active { display: block; }
-    @keyframes fadeSlideIn { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
-
-    .hero { min-height: 80vh; display: flex; align-items: center; position: relative; overflow: hidden; }
-    .hero-content { position: relative; z-index: 3; max-width: 720px; }
-    .hero-sub { font-size: 1.2rem; color: var(--text-secondary); margin: 1.5rem 0 2.5rem; max-width: 520px; }
-    .cta-group { display: flex; gap: 1.5rem; flex-wrap: wrap; }
-    .cta { display: inline-block; padding: 1rem 2.5rem; border-radius: var(--radius-full); font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.9rem; font-family: var(--font-display); cursor: pointer; border: none; transition: all 0.4s var(--transition-smooth); }
-    .cta-primary { background: linear-gradient(135deg, var(--accent-gold), #9e6d0e); color: #fff; box-shadow: var(--shadow-gold); }
-    .cta-primary:hover { box-shadow: 0 14px 48px rgba(184,134,11,0.45); transform: translateY(-3px); }
-    .cta-secondary { border: 2px solid var(--accent-gold); color: var(--accent-gold); background: transparent; }
-    .hero-bg-layer { position: absolute; right: -8%; top: 5%; width: 60%; height: 85%; z-index: 1; pointer-events: none; }
-    .spirit-orb { position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.3; animation: orbDrift 15s infinite alternate ease-in-out; }
-    .orb-1 { width: 350px; height: 350px; background: #d4a843; top: 10%; right: 25%; }
-    .orb-2 { width: 280px; height: 280px; background: #1e3a5f; bottom: 20%; right: 15%; animation-delay: -6s; }
-    .orb-3 { width: 200px; height: 200px; background: #8b1a1a; top: 55%; right: 40%; animation-delay: -10s; }
-    @keyframes orbDrift { 0% { transform: translate(0,0) scale(1); } 100% { transform: translate(-45px,35px) scale(1.18); } }
-
-    .section { padding: 3rem 0; }
-    .bento-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.5rem; margin-top: 2rem; }
-    .bento-item { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2rem; transition: all 0.45s var(--transition-smooth); box-shadow: var(--shadow-card); }
-    .bento-item:hover { border-color: var(--accent-gold-light); transform: translateY(-8px); box-shadow: var(--shadow-gold); }
-    .bento-item .icon-rune { font-size: 2.5rem; margin-bottom: 1rem; display: block; }
-    .col-4 { grid-column: span 4; } .col-6 { grid-column: span 6; }
-
-    .character-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; margin-top: 2rem; }
-    .character-card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-xl); overflow: hidden; box-shadow: var(--shadow-card); transition: transform 0.1s ease-out; transform-style: preserve-3d; perspective: 1000px; cursor: pointer; }
-    .card-visual { width: 100%; aspect-ratio: 1/1.1; background: linear-gradient(160deg, #f0ebe0 0%, #e8e0d0 100%); display: flex; align-items: center; justify-content: center; font-size: 5rem; }
-    .card-info { padding: 1.5rem; }
-    .character-name { font-family: var(--font-display); font-size: 1.3rem; font-weight: 800; }
-
-    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; display: none; align-items: center; justify-content: center; }
-    .modal-overlay.show { display: flex; }
-    .modal { background: var(--bg-card); border-radius: var(--radius-xl); padding: 2.5rem; max-width: 420px; width: 90%; text-align: center; border: 1px solid var(--border-mystic); }
-    .modal h2 { margin-bottom: 1.5rem; }
-    .modal .input-group { margin-bottom: 1rem; text-align: left; }
-    .modal .input-group input { width: 100%; padding: 0.9rem 1.2rem; border: 2px solid var(--border-light); border-radius: var(--radius-full); font-size: 1rem; background: #fafaf8; }
-    .modal .btn { width: 100%; }
-    .switch-link { margin-top: 1rem; color: var(--accent-gold); cursor: pointer; font-weight: 600; }
-
-    /* 3D Canvas */
-    #threeCanvas { width: 100%; height: 520px; border-radius: var(--radius-xl); cursor: grab; position: relative; overflow: hidden; background: radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a14 100%); }
-    #threeCanvas:active { cursor: grabbing; }
-    .canvas-overlay { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 0.8rem; flex-wrap: wrap; justify-content: center; }
-    .canvas-btn { background: rgba(0,0,0,0.7); color: #d4a843; border: 1px solid #d4a843; padding: 0.6rem 1.4rem; border-radius: var(--radius-full); cursor: pointer; font-family: var(--font-display); font-weight: 700; font-size: 0.8rem; transition: all 0.3s; backdrop-filter: blur(10px); letter-spacing: 0.05em; }
-    .canvas-btn:hover { background: #d4a843; color: #000; box-shadow: 0 0 30px rgba(212,168,67,0.6); }
-    .canvas-btn.active-btn { background: #b91c1c; border-color: #ff0000; color: #fff; animation: btnGlow 1.5s infinite; }
-    @keyframes btnGlow { 0%,100%{box-shadow:0 0 15px rgba(255,0,0,0.5);} 50%{box-shadow:0 0 35px rgba(255,0,0,0.9),0 0 60px rgba(124,58,237,0.5);} }
-
-    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
-    .card { background: var(--bg-card); border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 2rem; box-shadow: var(--shadow-card); }
-    .input-group { margin-bottom: 1rem; }
-    .input-group label { display: block; font-weight: 700; margin-bottom: 0.3rem; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; }
-    .input-group input { width: 100%; padding: 0.85rem 1.2rem; border: 2px solid var(--border-light); border-radius: var(--radius-full); font-size: 1rem; background: #fafaf8; }
-    .btn { display: inline-block; padding: 0.9rem 2.2rem; border-radius: var(--radius-full); font-weight: 800; text-transform: uppercase; letter-spacing: 0.07em; font-family: var(--font-display); font-size: 0.9rem; cursor: pointer; border: none; transition: all 0.4s var(--transition-smooth); }
-    .btn-primary { background: linear-gradient(135deg, var(--accent-gold), #9e6d0e); color: #fff; box-shadow: var(--shadow-gold); }
-    .btn-primary:hover { box-shadow: 0 12px 40px rgba(184,134,11,0.45); transform: translateY(-3px); }
-    .btn-sm { padding: 0.5rem 1.3rem; font-size: 0.8rem; }
-    .msg { padding: 0.9rem 1.4rem; border-radius: var(--radius-xl); margin-top: 1rem; font-weight: 600; display: none; }
-    .msg.success { background: #d1fae5; color: #065f46; display: block; }
-    .msg.warning { background: #fef3c7; color: #92400e; display: block; }
-    .msg.error { background: #fee2e2; color: #991b1b; display: block; }
-    .spirit-class-badge { display: inline-block; padding: 0.3rem 1rem; border-radius: var(--radius-full); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em; margin-left: 0.5rem; }
-    .class-s { background: linear-gradient(135deg, #ff0000, #ff6600); color: #fff; box-shadow: 0 0 20px rgba(255,0,0,0.5); }
-    .class-a { background: linear-gradient(135deg, #7c3aed, #a78bfa); color: #fff; box-shadow: 0 0 16px rgba(124,58,237,0.4); }
-    .class-b { background: linear-gradient(135deg, #2563eb, #60a5fa); color: #fff; }
-    .class-c { background: #059669; color: #fff; }
-    .class-d { background: #78716c; color: #fff; }
-    .user-rank-badge { font-family: var(--font-display); font-size: 1.2rem; color: var(--accent-gold); font-weight: 800; }
-    .user-level-badge { background: linear-gradient(135deg, var(--accent-gold), #9e6d0e); color: #fff; padding: 0.5rem 1.5rem; border-radius: var(--radius-full); font-family: var(--font-display); font-size: 1rem; letter-spacing: 0.05em; display: inline-block; }
-    .rings-info-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem; margin-top: 1rem; }
-    .ring-info-card { border: 1px solid var(--border-light); border-radius: var(--radius-xl); padding: 1rem; display: flex; align-items: center; gap: 0.8rem; font-size: 0.82rem; transition: all 0.3s; }
-    .ring-info-card:hover { border-color: var(--accent-gold); box-shadow: var(--shadow-gold); }
-    .ring-visual-dot { width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0; position: relative; }
-    .dot-white-10 { background: radial-gradient(circle, #ffffff 30%, #cccccc 70%); box-shadow: 0 0 6px rgba(255,255,255,0.6); }
-    .dot-yellow-100 { background: radial-gradient(circle, #ffe066 30%, #e6b422 70%); box-shadow: 0 0 12px rgba(230,180,34,0.7); }
-    .dot-purple-1000 { background: radial-gradient(circle, #a78bfa 30%, #7c3aed 70%); box-shadow: 0 0 16px rgba(124,58,237,0.8); }
-    .dot-black-10000 { background: radial-gradient(circle, #555 30%, #0a0a0a 70%); box-shadow: 0 0 10px rgba(0,0,0,0.9); border: 1px solid #333; }
-    .dot-red-100000 { background: radial-gradient(circle, #ff4444 30%, #b91c1c 70%); box-shadow: 0 0 22px rgba(255,0,0,0.9); animation: pulseDot 1.5s infinite; }
-    @keyframes pulseDot { 0%,100%{box-shadow:0 0 16px rgba(255,0,0,0.7);} 50%{box-shadow:0 0 32px rgba(255,0,0,1),0 0 50px rgba(255,0,0,0.5);} }
-    .gate-card { background: #fffbeb; border: 2px dashed var(--accent-gold); border-radius: var(--radius-xl); padding: 1.3rem; margin-top: 1rem; }
-    .requirement-list { list-style: none; margin-top: 0.5rem; }
-    .requirement-list li { padding: 0.35rem 0; display: flex; justify-content: space-between; font-weight: 600; }
-    .req-met { color: var(--accent-emerald); } .req-unmet { color: var(--accent-blood); }
-    .stat-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; }
-    .stat-table th, .stat-table td { padding: 0.7rem 1rem; text-align: left; border-bottom: 1px solid var(--border-light); }
-    .stat-table th { background: #fafaf8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.75rem; }
-    .footer { border-top: 1px solid var(--border-light); padding: 2rem 0; margin-top: 3rem; text-align: center; color: var(--text-secondary); font-size: 0.82rem; }
-
-    .ring-legend { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-bottom: 1.5rem; padding: 1rem; background: #fafaf8; border-radius: var(--radius-xl); }
-    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.78rem; font-weight: 600; }
-    .legend-dot { width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0; }
-
-    @media (max-width: 768px) {
-      .grid-2, .bento-grid { grid-template-columns: 1fr; }
-      .col-4, .col-6 { grid-column: span 1; }
-      .nav-links { display: none; }
-      .burger { display: flex; }
-      #threeCanvas { height: 350px; }
-      .canvas-overlay { bottom: 0.5rem; gap: 0.4rem; }
-      .canvas-btn { padding: 0.4rem 1rem; font-size: 0.7rem; }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Philosopher:ital,wght@0,400;0,700;1,400&family=Cinzel:wght@400;600;700&display=swap');
+    body {
+      font-family: 'Philosopher', 'Cinzel', serif;
+      background: #0b0a1a;
+      margin: 0;
+      overflow-x: hidden;
+    }
+    .anime-card {
+      backdrop-filter: blur(16px);
+      background: rgba(10, 5, 30, 0.7);
+      border: 1px solid rgba(180, 130, 255, 0.25);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 20px rgba(140, 100, 255, 0.3);
+      transition: all 0.3s ease;
+    }
+    .anime-card:hover {
+      border-color: rgba(220, 180, 80, 0.7);
+      box-shadow: 0 20px 50px rgba(180, 120, 40, 0.5);
+      transform: translateY(-3px);
+    }
+    .gold-glow {
+      text-shadow: 0 0 12px #daa520, 0 0 25px #b8860b;
+    }
+    .spirit-btn {
+      background: linear-gradient(145deg, #2a1e3a, #150f24);
+      border: 1px solid #b99bff;
+      color: #f0e6ff;
+      box-shadow: 0 0 15px #7b4bc9;
+      transition: 0.25s;
+      font-weight: bold;
+      letter-spacing: 1px;
+    }
+    .spirit-btn:hover {
+      background: #402e5c;
+      box-shadow: 0 0 28px #c08aff;
+      border-color: #ffd966;
+      color: #fff;
+    }
+    .ring-glow-yellow { box-shadow: 0 0 20px #ffbb2e; }
+    .ring-glow-purple { box-shadow: 0 0 24px #b24eff; }
+    .ring-glow-black { box-shadow: 0 0 30px #222; }
+    .ring-glow-red { box-shadow: 0 0 35px #ff2a2a; }
+    .ring-glow-gold { box-shadow: 0 0 45px #ffaa00; }
+    canvas {
+      display: block;
+    }
+    #screen-3d canvas {
+      width: 100%;
+      height: 100%;
     }
   </style>
 </head>
-<body>
+<body class="text-gray-100 bg-[#0b0a1a]">
 
-  <div id="preloader"><div class="spirit-ring-loader"></div></div>
+  <!-- Основной контейнер -->
+  <main id="app" class="relative min-h-screen w-full flex flex-col items-center justify-start p-4 md:p-6">
 
-  <header class="header">
-    <div class="container">
-      <div class="logo" onclick="navigateTo('home')">魂 Soul Land <span class="logo-sub">UNIVERSE</span></div>
-      <nav>
-        <ul class="nav-links" id="navLinks">
-          <li><a data-page="home" class="active">Главная</a></li>
-          <li><a data-page="clans">Кланы</a></li>
-          <li><a data-page="characters">Персонажи</a></li>
-          <li><a data-page="techniques">Техники</a></li>
-          <li><a data-page="cabinet" class="nav-cabinet">⚔️ Мой путь</a></li>
-        </ul>
-        <div class="user-mini-header" id="userMiniHeader" style="display:none;">
-          <span style="font-weight:700;font-size:0.85rem;" id="usernameMini"></span>
-          <button class="btn-logout" onclick="logout()">Выйти</button>
+    <!-- Экран 1: Регистрация / Пробуждение -->
+    <section id="screen-register" class="w-full max-w-2xl mx-auto flex flex-col items-center justify-center min-h-[90vh] transition-all duration-700">
+      <div class="anime-card p-8 md:p-10 rounded-3xl w-full text-center space-y-7">
+        <h1 class="text-5xl md:text-6xl font-extrabold gold-glow text-amber-200" style="font-family: 'Cinzel', serif;">Soul Continent</h1>
+        <p class="text-violet-300 text-lg italic">Пробуди свою судьбу</p>
+        <div class="flex flex-col gap-4 items-center">
+          <input type="text" id="nickname-input" placeholder="Введи своё имя, воин" class="w-full max-w-xs px-5 py-3 rounded-full bg-black/50 border border-violet-400/60 text-white placeholder-violet-300/70 text-center focus:outline-none focus:ring-4 focus:ring-amber-500/50">
+          <div class="flex gap-3 mt-2">
+            <span class="text-sm text-gray-300">Пол:</span>
+            <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="gender" value="male" checked> <span>Юноша</span></label>
+            <label class="flex items-center gap-1 cursor-pointer"><input type="radio" name="gender" value="female"> <span>Девушка</span></label>
+          </div>
+          <button id="awaken-btn" class="spirit-btn px-8 py-3 rounded-full text-xl mt-4 animate-pulse">✨ Пробудить боевой дух</button>
         </div>
-        <div class="burger" id="burger"><span></span><span></span><span></span></div>
-      </nav>
-    </div>
-  </header>
-
-  <div class="modal-overlay" id="modalOverlay">
-    <div class="modal" id="modalLogin">
-      <h2>Войти</h2>
-      <div class="input-group"><input type="text" id="loginUsername" placeholder="Логин"></div>
-      <div class="input-group"><input type="password" id="loginPassword" placeholder="Пароль"></div>
-      <button class="btn btn-primary" onclick="login()">Войти</button>
-      <p class="switch-link" onclick="switchModal('register')">Регистрация</p>
-    </div>
-    <div class="modal" id="modalRegister" style="display:none;">
-      <h2>Регистрация</h2>
-      <div class="input-group"><input type="text" id="regUsername" placeholder="Логин"></div>
-      <div class="input-group"><input type="password" id="regPassword" placeholder="Пароль"></div>
-      <button class="btn btn-primary" onclick="register()">Создать</button>
-      <p class="switch-link" onclick="switchModal('login')">Войти</p>
-    </div>
-  </div>
-
-  <div class="page active" id="page-home">
-    <section class="hero container">
-      <div class="hero-content"><h1>Непревзойдённый<br>Клан Тан</h1><p class="hero-sub">Тан Сань переродился в мире боевых духов. От кузнеца до бога.</p>
-        <div class="cta-group"><button class="cta cta-primary" onclick="checkCabinetAccess()">⚔️ Мой путь</button><button class="cta cta-secondary" onclick="navigateTo('characters')">Герои</button></div>
-      </div>
-      <div class="hero-bg-layer"><div class="spirit-orb orb-1"></div><div class="spirit-orb orb-2"></div><div class="spirit-orb orb-3"></div></div>
-    </section>
-    <footer class="footer"><span>© 2025 Soul Land Universe</span></footer>
-  </div>
-
-  <div class="page" id="page-clans">
-    <section class="section container"><h2>Великие кланы</h2>
-      <div class="bento-grid">
-        <div class="bento-item col-6"><span class="icon-rune">🔨</span><h3>Клан Тан</h3><p>Мастера скрытого оружия.</p></div>
-        <div class="bento-item col-6"><span class="icon-rune">🐅</span><h3>Клан Белого Тигра</h3><p>Символ неукротимой мощи.</p></div>
-        <div class="bento-item col-4"><span class="icon-rune">🍜</span><h3>Духовная Еда</h3><p>Духи-усилители.</p></div>
-        <div class="bento-item col-4"><span class="icon-rune">❄️</span><h3>Небесный Лёд</h3><p>Абсолютный холод.</p></div>
-        <div class="bento-item col-4"><span class="icon-rune">👑</span><h3>Империя Доуло</h3><p>Сильнейшая фракция.</p></div>
+        <div id="awaken-result" class="mt-6 hidden transition-all duration-500">
+          <div class="text-2xl font-bold text-amber-300" id="spirit-name-display"></div>
+          <div class="text-sm text-violet-300" id="spirit-rarity"></div>
+          <div id="awaken-animation" class="my-4 mx-auto w-32 h-32 rounded-full bg-gradient-to-br from-purple-600 to-amber-400 flex items-center justify-center text-6xl animate-bounce">⚡</div>
+          <button id="start-journey-btn" class="spirit-btn px-6 py-2 rounded-full mt-4">Начать путь</button>
+        </div>
       </div>
     </section>
-    <footer class="footer"><span>© 2025 Soul Land Universe</span></footer>
-  </div>
 
-  <div class="page" id="page-characters">
-    <section class="section container"><h2>Легендарные герои</h2><div class="character-grid" id="characterGrid"></div></section>
-    <footer class="footer"><span>© 2025 Soul Land Universe</span></footer>
-  </div>
-
-  <div class="page" id="page-techniques">
-    <section class="section container"><h2>Духовные техники</h2>
-      <div class="card"><p>Скрытое оружие Тан • Ладонь Будды • Кольца духа • Синяя трава</p></div>
+    <!-- Экран 2: Главный профиль / Навигация -->
+    <section id="screen-profile" class="w-full hidden max-w-6xl mx-auto">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Левая колонка: инфо -->
+        <div class="anime-card rounded-3xl p-6 col-span-1 space-y-4">
+          <h2 class="text-3xl gold-glow text-amber-200" id="profile-nickname">Воин</h2>
+          <p class="text-violet-300">Боевой дух: <span id="profile-spirit" class="font-bold text-white"></span></p>
+          <p class="text-violet-300">Ранг: <span id="profile-rank" class="text-2xl text-amber-300">10</span> (Soul Scholar)</p>
+          <div class="flex gap-4 text-sm">
+            <span>💎 SP: <span id="sp-balance">100</span></span>
+            <span>🪙 Coins: <span id="coin-balance">20</span></span>
+          </div>
+          <button id="rank-up-btn" class="spirit-btn w-full py-2 rounded-full mt-3">⬆️ Получить следующий ранг</button>
+          <div id="ring-offer-area" class="hidden mt-3 p-3 bg-black/40 rounded-xl border border-amber-500/40">
+            <p class="text-sm">Доступно кольцо: <span id="ring-offer-age" class="font-bold text-amber-300"></span></p>
+            <button id="absorb-ring-btn" class="spirit-btn w-full py-1 mt-2 text-sm">🌀 Поглотить кольцо</button>
+          </div>
+        </div>
+        <!-- Центр: 3D просмотр (мини) -->
+        <div class="anime-card rounded-3xl col-span-1 lg:col-span-2 relative h-80 md:h-96" id="mini-3d-container">
+          <canvas id="three-canvas-mini" class="w-full h-full rounded-3xl"></canvas>
+          <div class="absolute bottom-2 right-3 text-xs text-gray-400">Вращай мышью</div>
+        </div>
+      </div>
+      <!-- Табы навигации -->
+      <div class="flex flex-wrap gap-3 mt-8 justify-center">
+        <button class="tab-btn spirit-btn px-5 py-2 rounded-full" data-screen="profile">👤 Профиль</button>
+        <button class="tab-btn spirit-btn px-5 py-2 rounded-full" data-screen="3d">🌀 3D Персонаж</button>
+        <button class="tab-btn spirit-btn px-5 py-2 rounded-full" data-screen="rings">💍 Кольца</button>
+        <button class="tab-btn spirit-btn px-5 py-2 rounded-full" data-screen="wiki">📖 Вики</button>
+        <button class="tab-btn spirit-btn px-5 py-2 rounded-full" data-screen="shop">🛒 Магазин</button>
+      </div>
     </section>
-    <footer class="footer"><span>© 2025 Soul Land Universe</span></footer>
-  </div>
 
-  <div class="page" id="page-cabinet">
-    <section class="section container" id="cabinetContent"></section>
-    <footer class="footer"><span>© 2025 Soul Land Universe</span></footer>
-  </div>
+    <!-- Экран 3D персонаж (полный) -->
+    <section id="screen-3d" class="w-full hidden max-w-6xl mx-auto mt-4">
+      <div class="anime-card rounded-3xl p-2 h-[70vh] md:h-[80vh] relative">
+        <canvas id="three-canvas-full" class="w-full h-full rounded-3xl"></canvas>
+        <button id="activate-ring-btn" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 spirit-btn px-6 py-2 rounded-full z-20">✨ Активировать кольцо</button>
+      </div>
+    </section>
 
-  <script type="importmap">
-    { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
-  </script>
+    <!-- Экран Кольца -->
+    <section id="screen-rings" class="w-full hidden max-w-4xl mx-auto mt-4">
+      <div class="anime-card p-6 rounded-3xl">
+        <h3 class="text-2xl gold-glow mb-4">💍 Духовные кольца</h3>
+        <div id="rings-list" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+      </div>
+    </section>
+
+    <!-- Вики -->
+    <section id="screen-wiki" class="w-full hidden max-w-4xl mx-auto mt-4">
+      <div class="anime-card p-6 rounded-3xl">
+        <h3 class="text-2xl gold-glow">📚 Духи и ранги</h3>
+        <p class="text-gray-300 mt-2">Молот Чистого Неба, Голубой Тигр, Пламенный Дракон... <br> Ранговая система: 10-90. Красные кольца доступны с 70 ранга.</p>
+      </div>
+    </section>
+
+    <!-- Магазин -->
+    <section id="screen-shop" class="w-full hidden max-w-4xl mx-auto mt-4">
+      <div class="anime-card p-6 rounded-3xl text-center">
+        <h3 class="text-2xl gold-glow">🛒 Лавка духов</h3>
+        <p class="text-gray-400">Скоро: улучшения, зелья, свитки.</p>
+      </div>
+    </section>
+  </main>
 
   <script type="module">
     import * as THREE from 'three';
     import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+    import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
-    // ==================== БАЗА ДАННЫХ ====================
-    const USERS_KEY = 'soul_land_v4';
-    const SESSION_KEY = 'soul_session_v4';
-    const getUsers = () => { try { return JSON.parse(localStorage.getItem(USERS_KEY)) || {}; } catch(e) { return {}; } };
-    const saveUsers = (u) => localStorage.setItem(USERS_KEY, JSON.stringify(u));
-    let currentUser = null;
-    const getSession = () => { try { return JSON.parse(localStorage.getItem(SESSION_KEY)); } catch(e) { return null; } };
+    // ---------- ГЛОБАЛЬНОЕ СОСТОЯНИЕ ----------
+    const state = {
+      nickname: '',
+      gender: 'male',
+      spirit: null,
+      rank: 10,
+      sp: 100,
+      coins: 20,
+      rings: [], // { age, color, type }
+      spiritData: null,
+      pendingRing: null,
+      sceneMini: null, sceneFull: null,
+      rendererMini: null, rendererFull: null,
+      characterGroup: null,
+      ringsGroup: null,
+    };
 
-    const SPIRITS = [
-      { name: 'Синяя Трава Бога', class: 'S', emoji: '🌿', base: 10 },
-      { name: 'Молот Чистой Небесной Силы', class: 'S', emoji: '🔨', base: 9 },
-      { name: 'Белый Тигр', class: 'A', emoji: '🐅', base: 8 },
-      { name: 'Ледяной Феникс', class: 'A', emoji: '❄️', base: 7 },
-      { name: 'Огненный Дракон', class: 'A', emoji: '🐉', base: 7 },
-      { name: 'Теневой Волк', class: 'B', emoji: '🐺', base: 5 },
-      { name: 'Стальной Бык', class: 'B', emoji: '🐂', base: 4 },
-      { name: 'Острый Коготь', class: 'C', emoji: '🦅', base: 3 },
-      { name: 'Каменный Панцирь', class: 'C', emoji: '🪨', base: 2 },
-      { name: 'Светлячок', class: 'D', emoji: '🪲', base: 1 },
-      { name: 'Духовная Еда', class: 'B', emoji: '🍜', base: 5 },
-      { name: 'Кровавая Роза', class: 'B', emoji: '🌹', base: 4 }
+    // Доступные духи с весами
+    const spirits = [
+      { name: 'Молот Чистого Неба', rarity: 'legendary', weight: 8, color: '#e0b0ff' },
+      { name: 'Пламенный Дракон', rarity: 'legendary', weight: 10, color: '#ff6347' },
+      { name: 'Голубой Тигр', rarity: 'epic', weight: 15, color: '#3b82f6' },
+      { name: 'Меч Бога Войны', rarity: 'epic', weight: 14, color: '#c0c0c0' },
+      { name: 'Синяя Серебряная Трава', rarity: 'common', weight: 28, color: '#4ade80' },
+      { name: 'Феникс Огня', rarity: 'legendary', weight: 9, color: '#ff8c00' },
+      { name: 'Черепаха Защиты', rarity: 'rare', weight: 18, color: '#2e8b57' },
+      { name: 'Ледяной Волк', rarity: 'rare', weight: 16, color: '#87ceeb' },
+      { name: 'Теневой Клинок', rarity: 'epic', weight: 12, color: '#8a2be2' }
     ];
 
-    // Звери по цветам колец (годам)
-    const BEASTS = {
-      white: ['Духовный кролик', 'Теневая мышь', 'Каменный жук', 'Водяная змея', 'Ветряной воробей'],
-      yellow: ['Мандариновая змея', 'Огненная саламандра', 'Ветряной волк', 'Каменный краб', 'Ледяная ящерица', 'Теневая кошка', 'Громовая птица', 'Духовная антилопа'],
-      purple: ['Тысячелетний паук', 'Призрачный тигр', 'Небесный орёл', 'Земляной дракон', 'Водяной питон', 'Огненный голубь', 'Лунный медведь', 'Штормовой ястреб'],
-      black: ['Десятитысячелетний василиск', 'Чёрный дракон', 'Демонический волк', 'Древний голем', 'Король скорпионов', 'Титановый удав', 'Кошмарный ворон'],
-      red: ['Стотысячелетний феникс', 'Императорский дракон', 'Морской бог', 'Небесный владыка', 'Божественный тигр', 'Духовный император', 'Кровавый бог']
-    };
-
-    const rand = arr => arr[Math.floor(Math.random() * arr.length)];
-
-    // Цвет кольца СТРОГО по годам как в аниме
-    function getRingByYears(years) {
-      if (years >= 100000) return { color: 'red', name: '100 000 лет', type: 'red-100000' };
-      if (years >= 10000) return { color: 'black', name: '10 000 лет', type: 'black-10000' };
-      if (years >= 1000) return { color: 'purple', name: '1 000 лет', type: 'purple-1000' };
-      if (years >= 100) return { color: 'yellow', name: '100 лет', type: 'yellow-100' };
-      return { color: 'white', name: '10 лет', type: 'white-10' };
+    // ---------- ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ----------
+    function getRandomSpirit() {
+      const total = spirits.reduce((acc, s) => acc + s.weight, 0);
+      let rand = Math.random() * total;
+      for (let s of spirits) {
+        if (rand < s.weight) return s;
+        rand -= s.weight;
+      }
+      return spirits[0];
     }
 
-    function generateRingYears(level, spiritClass) {
-      const maxColor = spiritClass === 'S' ? 'red' : spiritClass === 'A' ? 'red' : spiritClass === 'B' ? 'black' : 'purple';
-      let years;
-      if (level >= 90) {
-        years = maxColor === 'red' ? Math.floor(Math.random() * 400000 + 100000) : Math.floor(Math.random() * 50000 + 10000);
-      } else if (level >= 70) {
-        years = maxColor === 'red' ? (Math.random() > 0.5 ? Math.floor(Math.random() * 50000 + 10000) : Math.floor(Math.random() * 100000 + 50000)) : Math.floor(Math.random() * 50000 + 10000);
-      } else if (level >= 40) {
-        years = Math.floor(Math.random() * 7000 + 3000);
-      } else if (level >= 20) {
-        years = Math.floor(Math.random() * 400 + 100);
-      } else {
-        years = Math.floor(Math.random() * 50 + 10);
-      }
-      return { years, ...getRingByYears(years) };
+    function getRingColor(age) {
+      if (age >= 200000) return '#ffaa00';
+      if (age >= 100000) return '#ff3333';
+      if (age >= 10000) return '#222222';
+      if (age >= 1000) return '#b24eff';
+      return '#ffbb2e';
     }
 
-    // ==================== 3D СЦЕНА С КОЛЬЦАМИ КАК В АНИМЕ ====================
-    let scene3D, camera3D, renderer3D, controls3D, characterGroup, ringsGroup3D = [], animFrameId;
+    function calculateRingAge(rank, spiritRarity) {
+      const base = rank * 120;
+      let modifier = 1;
+      if (spiritRarity === 'legendary') modifier = 3.5;
+      else if (spiritRarity === 'epic') modifier = 2.2;
+      else if (spiritRarity === 'rare') modifier = 1.5;
+      else modifier = 0.9;
+      
+      let age = Math.floor(base * modifier * (0.7 + Math.random() * 0.8));
+      if (rank >= 70 && spiritRarity === 'legendary') age = Math.max(age, 90000 + Math.floor(Math.random()*50000));
+      if (rank >= 50 && age < 5000) age += 8000;
+      return Math.min(age, 250000);
+    }
 
-    const RING_COLORS_3D = {
-      'white-10': { color: 0xffffff, emissive: 0x444444, emissiveIntensity: 0.3, roughness: 0.25, metalness: 0.4, glowColor: 0xffffff, glowOpacity: 0.1 },
-      'yellow-100': { color: 0xe6b422, emissive: 0xe6b422, emissiveIntensity: 0.7, roughness: 0.15, metalness: 0.7, glowColor: 0xffdd44, glowOpacity: 0.3 },
-      'purple-1000': { color: 0x7c3aed, emissive: 0x7c3aed, emissiveIntensity: 0.9, roughness: 0.12, metalness: 0.8, glowColor: 0xa78bfa, glowOpacity: 0.4 },
-      'black-10000': { color: 0x111111, emissive: 0x1a1a1a, emissiveIntensity: 0.2, roughness: 0.05, metalness: 0.95, glowColor: 0x000000, glowOpacity: 0.6 },
-      'red-100000': { color: 0xff0000, emissive: 0xff0000, emissiveIntensity: 1.5, roughness: 0.08, metalness: 0.85, glowColor: 0xff3333, glowOpacity: 0.7 }
-    };
-
-    function init3DScene(canvasId, ringsData) {
-      const canvas = document.getElementById(canvasId);
-      if (!canvas) return;
-      while (canvas.firstChild) canvas.removeChild(canvas.firstChild);
-      if (animFrameId) cancelAnimationFrame(animFrameId);
-      ringsGroup3D = [];
-
-      const w = canvas.clientWidth, h = canvas.clientHeight;
-      scene3D = new THREE.Scene();
-      scene3D.background = new THREE.Color(0x0a0a14);
-      scene3D.fog = new THREE.Fog(0x0a0a14, 4, 22);
-
-      camera3D = new THREE.PerspectiveCamera(50, w/h, 0.1, 80);
-      camera3D.position.set(0.5, 1.1, 6.5);
-
-      renderer3D = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      renderer3D.setSize(w, h);
-      renderer3D.setPixelRatio(Math.min(devicePixelRatio, 2));
-      renderer3D.shadowMap.enabled = true;
-      renderer3D.shadowMap.type = THREE.PCFSoftShadowMap;
-      renderer3D.toneMapping = THREE.ACESFilmicToneMapping;
-      renderer3D.toneMappingExposure = 1.3;
-      canvas.appendChild(renderer3D.domElement);
-
-      controls3D = new OrbitControls(camera3D, renderer3D.domElement);
-      controls3D.target.set(0, 0.45, 0);
-      controls3D.enableDamping = true;
-      controls3D.dampingFactor = 0.06;
-      controls3D.minDistance = 2.2;
-      controls3D.maxDistance = 10;
-      controls3D.maxPolarAngle = Math.PI * 0.65;
-      controls3D.update();
-
-      // ОСВЕЩЕНИЕ
-      scene3D.add(new THREE.AmbientLight(0x334466, 2));
-      const key = new THREE.DirectionalLight(0xffeedd, 7);
-      key.position.set(4, 5, 5);
-      key.castShadow = true;
-      key.shadow.mapSize.set(2048, 2048);
-      key.shadow.camera.near = 0.3;
-      key.shadow.camera.far = 30;
-      scene3D.add(key);
-
-      const rim = new THREE.DirectionalLight(0x5544cc, 4);
-      rim.position.set(-3, 2, -3);
-      scene3D.add(rim);
-
-      const pointLight = new THREE.PointLight(0xd4a843, 30, 10);
-      pointLight.position.set(0, 2.5, -4);
-      scene3D.add(pointLight);
-
-      // ПОЛ С ОТРАЖЕНИЕМ
-      const floorGeo = new THREE.CircleGeometry(5, 80);
-      const floorMat = new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.3, metalness: 0.7 });
-      const floor = new THREE.Mesh(floorGeo, floorMat);
-      floor.rotation.x = -Math.PI/2;
-      floor.position.y = -2.2;
-      floor.receiveShadow = true;
-      scene3D.add(floor);
-
-      // ПЛАТФОРМА
-      const platGeo = new THREE.CylinderGeometry(1.05, 1.1, 0.18, 64);
-      const platMat = new THREE.MeshStandardMaterial({ color: 0x1a1a3e, roughness: 0.25, metalness: 0.8 });
-      const platform = new THREE.Mesh(platGeo, platMat);
-      platform.position.y = -1.55;
-      platform.receiveShadow = true;
-      platform.castShadow = true;
-      scene3D.add(platform);
-
-      // РУНИЧЕСКИЙ КРУГ
-      const runeGeo = new THREE.TorusGeometry(0.92, 0.025, 16, 80);
-      const runeMat = new THREE.MeshStandardMaterial({ color: 0xd4a843, emissive: 0xd4a843, emissiveIntensity: 0.8, roughness: 0.15, metalness: 0.9 });
-      const runeRing = new THREE.Mesh(runeGeo, runeMat);
-      runeRing.rotation.x = -Math.PI/2;
-      runeRing.position.y = -1.45;
-      runeRing.name = 'runeRing';
-      scene3D.add(runeRing);
-
-      // ВНУТРЕННИЙ РУНИЧЕСКИЙ КРУГ
-      const innerRuneGeo = new THREE.TorusGeometry(0.55, 0.02, 16, 60);
-      const innerRune = new THREE.Mesh(innerRuneGeo, runeMat.clone());
-      innerRune.rotation.x = -Math.PI/2;
-      innerRune.position.y = -1.44;
-      innerRune.material.emissiveIntensity = 0.5;
-      innerRune.name = 'innerRune';
-      scene3D.add(innerRune);
-
-      // ЧАСТИЦЫ ДУХОВНОЙ ЭНЕРГИИ
-      const particlesGeo = new THREE.BufferGeometry();
-      const count = 250;
-      const pos = new Float32Array(count*3);
-      for (let i=0;i<count*3;i+=3) {
-        const a = Math.random()*Math.PI*2, r = 1.5+Math.random()*4;
-        pos[i]=Math.cos(a)*r; pos[i+1]=-1.5+Math.random()*5; pos[i+2]=Math.sin(a)*r;
+    // ---------- UI ПЕРЕКЛЮЧЕНИЕ ----------
+    function showScreen(id) {
+      ['screen-register','screen-profile','screen-3d','screen-rings','screen-wiki','screen-shop'].forEach(s => {
+        document.getElementById(s)?.classList.add('hidden');
+      });
+      document.getElementById(id)?.classList.remove('hidden');
+      if (id === 'screen-profile' || id === 'screen-3d') {
+        update3DScene();
       }
-      particlesGeo.setAttribute('position', new THREE.BufferAttribute(pos,3));
-      const pMat = new THREE.PointsMaterial({ size:0.025, color:0xd4a843, blending:THREE.AdditiveBlending, depthWrite:false, transparent:true, opacity:0.7 });
-      const particles = new THREE.Points(particlesGeo, pMat);
-      particles.name = 'particles';
-      scene3D.add(particles);
+    }
 
-      // === ПЕРСОНАЖ ===
-      characterGroup = new THREE.Group();
-      characterGroup.position.y = -1.4;
+    // Обновление 3D сцены (пересоздание персонажа)
+    function update3DScene() {
+      if (state.sceneMini && state.characterGroup) {
+        rebuildCharacter(state.sceneMini, state.ringsGroup);
+      }
+      if (state.sceneFull) {
+        if (!state.fullCharacterGroup) createFullCharacter();
+        else rebuildCharacter(state.sceneFull, state.fullRingsGroup);
+      }
+    }
 
-      // Тело
-      const bodyGeo = new THREE.CapsuleGeometry(0.28, 0.85, 8, 16);
-      const bodyMat = new THREE.MeshStandardMaterial({ color: 0x252550, roughness: 0.25, metalness: 0.55 });
+    // ---------- 3D ПОСТРОЕНИЕ ----------
+    function createCharacterBase() {
+      const group = new THREE.Group();
+      const bodyGeo = new THREE.CylinderGeometry(0.4, 0.5, 1.8, 8);
+      const bodyMat = new THREE.MeshStandardMaterial({ color: state.gender==='male' ? 0x3a5c8a : 0x8a4b6c, roughness: 0.4 });
       const body = new THREE.Mesh(bodyGeo, bodyMat);
-      body.position.y = 0.55;
-      body.castShadow = true;
-      characterGroup.add(body);
-
-      // Грудь (эмблема)
-      const chestGeo = new THREE.CylinderGeometry(0.22, 0.25, 0.08, 32);
-      const chestMat = new THREE.MeshStandardMaterial({ color: 0xd4a843, roughness: 0.2, metalness: 0.9, emissive: 0xd4a843, emissiveIntensity: 0.3 });
-      const chest = new THREE.Mesh(chestGeo, chestMat);
-      chest.position.set(0, 0.85, 0.2);
-      chest.rotation.x = 0.3;
-      characterGroup.add(chest);
-
-      // Голова
-      const headGeo = new THREE.SphereGeometry(0.2, 32, 32);
-      const headMat = new THREE.MeshStandardMaterial({ color: 0xf5e6d3, roughness: 0.45 });
+      body.position.y = 0.9;
+      group.add(body);
+      
+      const headGeo = new THREE.SphereGeometry(0.35, 16, 16);
+      const headMat = new THREE.MeshStandardMaterial({ color: 0xffddbb });
       const head = new THREE.Mesh(headGeo, headMat);
-      head.position.y = 1.15;
-      head.castShadow = true;
-      characterGroup.add(head);
+      head.position.y = 1.9;
+      group.add(head);
+      
+      // глаза
+      const eyeGeo = new THREE.SphereGeometry(0.1, 8, 8);
+      const eyeMat = new THREE.MeshStandardMaterial({ color: 0x000000 });
+      const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+      leftEye.position.set(-0.15, 2.0, 0.32);
+      const rightEye = leftEye.clone();
+      rightEye.position.set(0.15, 2.0, 0.32);
+      group.add(leftEye); group.add(rightEye);
+      
+      return group;
+    }
 
-      // Волосы
-      const hairGeo = new THREE.SphereGeometry(0.22, 32, 32);
-      const hairMat = new THREE.MeshStandardMaterial({ color: 0x1a1a3e, roughness: 0.35 });
-      const hair = new THREE.Mesh(hairGeo, hairMat);
-      hair.position.y = 1.26;
-      hair.scale.set(1, 0.65, 1);
-      characterGroup.add(hair);
-
-      // Плечи
-      const shGeo = new THREE.SphereGeometry(0.13, 16, 16);
-      const shMat = new THREE.MeshStandardMaterial({ color: 0x353565, roughness: 0.25, metalness: 0.6 });
-      [-0.32, 0.32].forEach(x => {
-        const sh = new THREE.Mesh(shGeo, shMat);
-        sh.position.set(x, 0.95, 0);
-        sh.castShadow = true;
-        characterGroup.add(sh);
+    function createRingsVisual(ringsArray, scene) {
+      const group = new THREE.Group();
+      ringsArray.forEach((ring, idx) => {
+        const colorHex = ring.color || getRingColor(ring.age);
+        const geometry = new THREE.TorusGeometry(0.55 + idx*0.08, 0.08, 16, 32);
+        const material = new THREE.MeshStandardMaterial({ color: colorHex, emissive: new THREE.Color(colorHex), emissiveIntensity: 0.9, roughness: 0.2 });
+        const torus = new THREE.Mesh(geometry, material);
+        torus.position.y = 0.8 + idx * 0.25;
+        group.add(torus);
       });
+      return group;
+    }
 
-      // Руки
-      const armGeo = new THREE.CapsuleGeometry(0.07, 0.5, 6, 8);
-      const armMat = new THREE.MeshStandardMaterial({ color: 0xf5e6d3, roughness: 0.45 });
-      [-0.38, 0.38].forEach((x, i) => {
-        const arm = new THREE.Mesh(armGeo, armMat);
-        arm.position.set(x, 0.5, 0);
-        arm.rotation.z = i === 0 ? 0.25 : -0.25;
-        arm.castShadow = true;
-        characterGroup.add(arm);
-      });
+    function rebuildCharacter(scene, ringsGroupRef) {
+      if (!scene) return;
+      if (state.characterGroup) scene.remove(state.characterGroup);
+      if (ringsGroupRef) scene.remove(ringsGroupRef);
+      
+      const charGroup = createCharacterBase();
+      scene.add(charGroup);
+      state.characterGroup = charGroup;
+      
+      const newRings = createRingsVisual(state.rings, scene);
+      scene.add(newRings);
+      if (ringsGroupRef === state.ringsGroup) state.ringsGroup = newRings;
+      else if (ringsGroupRef === state.fullRingsGroup) state.fullRingsGroup = newRings;
+    }
 
-      // Ноги
-      const legGeo = new THREE.CapsuleGeometry(0.09, 0.55, 6, 8);
-      const legMat = new THREE.MeshStandardMaterial({ color: 0x1a1a3e, roughness: 0.35 });
-      [-0.14, 0.14].forEach(x => {
-        const leg = new THREE.Mesh(legGeo, legMat);
-        leg.position.set(x, -0.05, 0);
-        leg.castShadow = true;
-        characterGroup.add(leg);
-      });
-
-      // Пояс
-      const beltGeo = new THREE.TorusGeometry(0.3, 0.035, 8, 32);
-      const beltMat = new THREE.MeshStandardMaterial({ color: 0xd4a843, roughness: 0.15, metalness: 0.9, emissive: 0xd4a843, emissiveIntensity: 0.4 });
-      const belt = new THREE.Mesh(beltGeo, beltMat);
-      belt.position.y = 0.25;
-      belt.rotation.x = Math.PI/2;
-      characterGroup.add(belt);
-
-      scene3D.add(characterGroup);
-
-      // === ДУХОВНЫЕ КОЛЬЦА (КАК В АНИМЕ) ===
-      // Кольца идут от центра (первые, самые слабые) наружу (последние, сильнейшие)
-      const sortedRings = [...ringsData].sort((a, b) => a.level - b.level);
-
-      sortedRings.forEach((ringData, index) => {
-        const config = RING_COLORS_3D[ringData.type] || RING_COLORS_3D['yellow-100'];
-        // Радиус увеличивается: первое кольцо в центре, каждое следующее шире
-        const baseRadius = 0.35 + index * 0.2;
-        const tubeRadius = ringData.type === 'red-100000' ? 0.05 : ringData.type === 'black-10000' ? 0.045 : 0.04;
-
-        // Основное кольцо
-        const ringGeo = new THREE.TorusGeometry(baseRadius, tubeRadius, 24, 100);
-        const ringMat = new THREE.MeshStandardMaterial({
-          color: config.color,
-          roughness: config.roughness,
-          metalness: config.metalness,
-          emissive: config.emissive,
-          emissiveIntensity: config.emissiveIntensity
-        });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.position.y = 0.15;
-        ring.rotation.x = Math.PI / 2;
-        ring.userData = { baseRadius, config, type: ringData.type, level: ringData.level, targetScale: 0.01, currentScale: 0.01 };
-        ring.scale.set(0.01, 0.01, 0.01);
-        characterGroup.add(ring);
-
-        // Свечение (glow) — наружное кольцо большего радиуса
-        const glowGeo = new THREE.TorusGeometry(baseRadius, tubeRadius * 2.5, 16, 100);
-        const glowMat = new THREE.MeshBasicMaterial({
-          color: config.glowColor,
-          transparent: true,
-          opacity: config.glowOpacity,
-          depthWrite: false,
-          blending: THREE.AdditiveBlending
-        });
-        const glow = new THREE.Mesh(glowGeo, glowMat);
-        glow.position.y = 0.15;
-        glow.rotation.x = Math.PI / 2;
-        ring.add(glow);
-
-        // Для красных колец — дополнительная аура
-        if (ringData.type === 'red-100000') {
-          const auraGeo = new THREE.TorusGeometry(baseRadius, tubeRadius * 5, 8, 60);
-          const auraMat = new THREE.MeshBasicMaterial({
-            color: 0xff0000,
-            transparent: true,
-            opacity: 0.12,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending
-          });
-          const aura = new THREE.Mesh(auraGeo, auraMat);
-          aura.position.y = 0.15;
-          aura.rotation.x = Math.PI / 2;
-          ring.add(aura);
-        }
-
-        // Для чёрных колец — тёмный ореол
-        if (ringData.type === 'black-10000') {
-          const darkAuraGeo = new THREE.TorusGeometry(baseRadius, tubeRadius * 4, 8, 60);
-          const darkAuraMat = new THREE.MeshBasicMaterial({
-            color: 0x000000,
-            transparent: true,
-            opacity: 0.25,
-            depthWrite: false,
-            blending: THREE.NormalBlending
-          });
-          const darkAura = new THREE.Mesh(darkAuraGeo, darkAuraMat);
-          darkAura.position.y = 0.15;
-          darkAura.rotation.x = Math.PI / 2;
-          ring.add(darkAura);
-        }
-
-        ringsGroup3D.push(ring);
-      });
-
-      // АНИМАЦИЯ
+    function initMiniScene() {
+      const canvas = document.getElementById('three-canvas-mini');
+      if (!canvas) return;
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0b0a1a);
+      scene.fog = new THREE.Fog(0x0b0a1a, 2, 8);
+      const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth/canvas.clientHeight, 0.5, 20);
+      camera.position.set(2, 1.8, 3.5);
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      renderer.shadowMap.enabled = true;
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.target.set(0,1.2,0);
+      
+      const light = new THREE.DirectionalLight(0xffeedd, 1.2);
+      light.position.set(2,4,3);
+      scene.add(light);
+      scene.add(new THREE.AmbientLight(0x4a3b6b, 0.7));
+      
+      state.sceneMini = scene;
+      state.rendererMini = renderer;
+      state.miniControls = controls;
+      state.miniCamera = camera;
+      
+      rebuildCharacter(scene, state.ringsGroup);
+      
       function animate() {
-        animFrameId = requestAnimationFrame(animate);
-        const t = Date.now() * 0.001;
-        controls3D.update();
-
-        if (characterGroup) {
-          characterGroup.position.y = -1.4 + Math.sin(t * 1.6) * 0.04;
-          characterGroup.rotation.y += 0.002;
-        }
-
-        const p = scene3D.getObjectByName('particles');
-        if (p) p.rotation.y += 0.004;
-
-        const rune = scene3D.getObjectByName('runeRing');
-        if (rune) rune.material.emissiveIntensity = 0.8 + Math.sin(t * 2.5) * 0.4;
-        const innerRune = scene3D.getObjectByName('innerRune');
-        if (innerRune) innerRune.material.emissiveIntensity = 0.5 + Math.cos(t * 3) * 0.3;
-
-        // Анимация колец
-        ringsGroup3D.forEach((ring, i) => {
-          const target = ring.userData.targetScale;
-          ring.userData.currentScale += (target - ring.userData.currentScale) * 0.07;
-          ring.scale.setScalar(ring.userData.currentScale);
-
-          if (ring.userData.currentScale > 0.02) {
-            // Вращение
-            ring.rotation.z += 0.006 * (i + 1) * (i % 2 === 0 ? 1 : -1);
-            // Пульсация красных
-            if (ring.userData.type === 'red-100000') {
-              const s = 1 + Math.sin(t * 4 + i) * 0.1;
-              ring.scale.setScalar(ring.userData.currentScale * s);
-              // Пульсация эмиссии
-              ring.material.emissiveIntensity = RING_COLORS_3D['red-100000'].emissiveIntensity + Math.sin(t * 5 + i) * 0.5;
-            }
-            // Пульсация фиолетовых
-            if (ring.userData.type === 'purple-1000') {
-              const s = 1 + Math.sin(t * 3 + i) * 0.04;
-              ring.scale.setScalar(ring.userData.currentScale * s);
-            }
-          }
-        });
-
-        renderer3D.render(scene3D, camera3D);
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
       }
       animate();
     }
 
-    function activateRings3D() {
-      if (ringsGroup3D.length === 0) return;
-      ringsGroup3D.forEach((ring, i) => {
-        setTimeout(() => { ring.userData.targetScale = 1; }, i * 350);
-      });
-    }
-
-    function deactivateRings3D() {
-      ringsGroup3D.forEach(ring => { ring.userData.targetScale = 0.01; });
-    }
-
-    function resetView3D() {
-      if (camera3D && controls3D) {
-        camera3D.position.set(0.5, 1.1, 6.5);
-        controls3D.target.set(0, 0.45, 0);
-        controls3D.update();
+    function initFullScene() {
+      const canvas = document.getElementById('three-canvas-full');
+      if (!canvas) return;
+      const scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x0a0515);
+      const camera = new THREE.PerspectiveCamera(45, canvas.clientWidth/canvas.clientHeight, 0.5, 25);
+      camera.position.set(2.2, 1.9, 4);
+      const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+      renderer.setSize(canvas.clientWidth, canvas.clientHeight);
+      const controls = new OrbitControls(camera, renderer.domElement);
+      controls.target.set(0,1.3,0);
+      
+      scene.add(new THREE.AmbientLight(0x4a3b8b, 0.8));
+      const dirLight = new THREE.DirectionalLight(0xffe0c0, 1.3);
+      dirLight.position.set(3,5,4);
+      scene.add(dirLight);
+      
+      state.sceneFull = scene;
+      state.fullCamera = camera;
+      state.fullControls = controls;
+      state.fullRenderer = renderer;
+      
+      createFullCharacter();
+      
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
       }
-      deactivateRings3D();
+      animate();
     }
 
-    window.init3DScene = init3DScene;
-    window.activateRings = activateRings3D;
-    window.deactivateRings = deactivateRings3D;
-    window.reset3DView = resetView3D;
-
-    // ==================== АВТОРИЗАЦИЯ ====================
-    window.register = () => {
-      const u = document.getElementById('regUsername').value.trim();
-      const p = document.getElementById('regPassword').value.trim();
-      if (!u || !p || u.length < 3) return alert('Логин от 3 символов');
-      const users = getUsers();
-      if (users[u]) return alert('Занято');
-      const spirit = rand(SPIRITS);
-      const startLevel = spirit.base;
-      const rings = [];
-      [10, 20, 30, 40, 50, 60, 70, 80, 90].filter(l => l <= startLevel).forEach(l => {
-        const r = generateRingYears(l, spirit.class);
-        rings.push({ level: l, ...r, beast: rand(BEASTS[r.color]) });
-      });
-      users[u] = { password: p, spirit, level: startLevel, spiritPoints: 0, rings, bestAvgGrade: 0, bestOlympiads: 0, bestPullups: 0, bestRun1000: Infinity, bestRun3000: Infinity, bestRun10000: Infinity, bestBenchPress: 0, bestSquat: 0, bestDeadlift: 0, bestPlank: 0, bestBurpee: 0, history: [], avatar: '' };
-      saveUsers(users);
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ username: u }));
-      currentUser = { username: u, ...users[u] };
-      document.getElementById('modalOverlay').classList.remove('show');
-      updateHeader();
-      navigateTo('cabinet');
-    };
-
-    window.login = () => {
-      const u = document.getElementById('loginUsername').value.trim();
-      const p = document.getElementById('loginPassword').value.trim();
-      const users = getUsers();
-      if (!users[u] || users[u].password !== p) return alert('Неверно');
-      localStorage.setItem(SESSION_KEY, JSON.stringify({ username: u }));
-      currentUser = { username: u, ...users[u] };
-      document.getElementById('modalOverlay').classList.remove('show');
-      updateHeader();
-      navigateTo('cabinet');
-    };
-
-    window.logout = () => { localStorage.removeItem(SESSION_KEY); currentUser = null; updateHeader(); navigateTo('home'); };
-    window.checkCabinetAccess = () => currentUser ? navigateTo('cabinet') : document.getElementById('modalOverlay').classList.add('show');
-    window.switchModal = (t) => {
-      document.getElementById('modalLogin').style.display = t === 'login' ? 'block' : 'none';
-      document.getElementById('modalRegister').style.display = t === 'register' ? 'block' : 'none';
-    };
-    document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.classList.remove('show'); });
-
-    // ==================== НАВИГАЦИЯ ====================
-    function navigateTo(name) {
-      if (name === 'cabinet' && !currentUser) { document.getElementById('modalOverlay').classList.add('show'); return; }
-      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-      const t = document.getElementById('page-' + name);
-      if (t) t.classList.add('active');
-      document.querySelectorAll('#navLinks a').forEach(l => {
-        l.classList.remove('active');
-        if (l.dataset.page === name) l.classList.add('active');
-      });
-      scrollTo({ top: 0, behavior: 'smooth' });
-      if (name === 'characters') initCharCards();
-      if (name === 'cabinet') renderCabinet();
-    }
-    window.navigateTo = navigateTo;
-    document.querySelectorAll('#navLinks a').forEach(l => l.addEventListener('click', e => { e.preventDefault(); navigateTo(l.dataset.page); }));
-
-    function updateHeader() {
-      const m = document.getElementById('userMiniHeader');
-      if (currentUser) { m.style.display = 'flex'; document.getElementById('usernameMini').textContent = currentUser.username; }
-      else m.style.display = 'none';
+    function createFullCharacter() {
+      if (!state.sceneFull) return;
+      if (state.fullCharacterGroup) state.sceneFull.remove(state.fullCharacterGroup);
+      const group = createCharacterBase();
+      state.sceneFull.add(group);
+      state.fullCharacterGroup = group;
+      
+      if (state.fullRingsGroup) state.sceneFull.remove(state.fullRingsGroup);
+      const rings = createRingsVisual(state.rings, state.sceneFull);
+      state.sceneFull.add(rings);
+      state.fullRingsGroup = rings;
     }
 
-    function initCharCards() {
-      const g = document.getElementById('characterGrid');
-      if (!g || g.children.length) return;
-      [{ n: 'Тан Сань', d: 'Бог-король', i: '🌿' }, { n: 'Сяо Ву', d: 'Богиня', i: '🐇' }, { n: 'Дай Мубай', d: 'Белый тигр', i: '🐅' }].forEach(c => {
-        const card = document.createElement('div');
-        card.className = 'character-card';
-        card.innerHTML = `<div class="card-visual">${c.i}</div><div class="card-info"><div class="character-name">${c.n}</div><p>${c.d}</p></div>`;
-        card.addEventListener('mousemove', (e) => {
-          const r = card.getBoundingClientRect();
-          card.style.transform = `perspective(1000px) rotateX(${((e.clientY-r.top-r.height/2)/(r.height/2))*-10}deg) rotateY(${((e.clientX-r.left-r.width/2)/(r.width/2))*10}deg)`;
-        });
-        card.addEventListener('mouseleave', () => card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)');
-        g.appendChild(card);
-      });
+    // ---------- ИГРОВАЯ ЛОГИКА ----------
+    function awakenSpirit() {
+      const nick = document.getElementById('nickname-input').value.trim();
+      if (!nick) return alert('Введи имя!');
+      state.nickname = nick;
+      state.gender = document.querySelector('input[name="gender"]:checked').value;
+      const spirit = getRandomSpirit();
+      state.spirit = spirit.name;
+      state.spiritData = spirit;
+      
+      document.getElementById('spirit-name-display').textContent = spirit.name;
+      document.getElementById('spirit-rarity').textContent = spirit.rarity.toUpperCase();
+      document.getElementById('awaken-result').classList.remove('hidden');
+      
+      document.getElementById('profile-nickname').textContent = nick;
+      document.getElementById('profile-spirit').textContent = spirit.name;
     }
 
-    // ==================== RPG СИСТЕМА ====================
-    function getSPRequired(l) { if (l<10) return 100; if (l<20) return 150; if (l<30) return 220; if (l<40) return 320; if (l<50) return 500; if (l<60) return 700; if (l<70) return 950; if (l<80) return 1300; if (l<90) return 2000; if (l<99) return 3500; return 10000; }
-    function getSPMultiplier(l) { if (l<40) return 1.0; if (l<80) return 0.55; return 0.25; }
-    function getRank(l) { if (l>=100) return 'Бог-король'; if (l>=90) return 'Титулованный Доуло'; if (l>=80) return 'Контрактный Доуло'; if (l>=70) return 'Мудрец'; if (l>=60) return 'Император'; if (l>=50) return 'Король'; if (l>=40) return 'Старейшина'; if (l>=30) return 'Мастер'; if (l>=20) return 'Эксперт'; if (l>=10) return 'Ученик'; return 'Без ранга'; }
-
-    function getGates(l) {
-      const u = currentUser;
-      const g = [];
-      if (l>=10&&l<20) g.push({n:'Подтягивания ≥ 5',c:()=>u.bestPullups>=5});
-      if (l>=20&&l<30) { g.push({n:'Подтягивания ≥ 10',c:()=>u.bestPullups>=10}); g.push({n:'Жим ≥ 50кг',c:()=>u.bestBenchPress>=50}); }
-      if (l>=30&&l<40) { g.push({n:'Подтягивания ≥ 15',c:()=>u.bestPullups>=15}); g.push({n:'Балл ≥ 70',c:()=>u.bestAvgGrade>=70}); g.push({n:'Планка ≥ 60с',c:()=>u.bestPlank>=60}); }
-      if (l>=40&&l<50) { g.push({n:'Подтягивания ≥ 18',c:()=>u.bestPullups>=18}); g.push({n:'1км ≤ 240с',c:()=>u.bestRun1000<=240&&u.bestRun1000>0}); g.push({n:'Присед ≥ 80кг',c:()=>u.bestSquat>=80}); }
-      if (l>=50&&l<60) { g.push({n:'Подтягивания ≥ 22',c:()=>u.bestPullups>=22}); g.push({n:'3км ≤ 720с',c:()=>u.bestRun3000<=720&&u.bestRun3000>0}); g.push({n:'Становая ≥ 100кг',c:()=>u.bestDeadlift>=100}); }
-      if (l>=60&&l<70) { g.push({n:'Олимп ≥ 2',c:()=>u.bestOlympiads>=2}); g.push({n:'Балл ≥ 85',c:()=>u.bestAvgGrade>=85}); g.push({n:'Бёрпи ≥ 30',c:()=>u.bestBurpee>=30}); }
-      if (l>=70&&l<80) { g.push({n:'Подтягивания ≥ 25',c:()=>u.bestPullups>=25}); g.push({n:'1км ≤ 200с',c:()=>u.bestRun1000<=200&&u.bestRun1000>0}); g.push({n:'10км ≤ 2400с',c:()=>u.bestRun10000<=2400&&u.bestRun10000>0}); g.push({n:'Жим ≥ 90кг',c:()=>u.bestBenchPress>=90}); }
-      if (l>=80&&l<90) { g.push({n:'Подтягивания ≥ 30',c:()=>u.bestPullups>=30}); g.push({n:'Балл ≥ 90',c:()=>u.bestAvgGrade>=90}); g.push({n:'Олимп ≥ 5',c:()=>u.bestOlympiads>=5}); g.push({n:'Становая ≥ 140кг',c:()=>u.bestDeadlift>=140}); }
-      if (l>=90&&l<100) { g.push({n:'Подтягивания ≥ 35',c:()=>u.bestPullups>=35}); g.push({n:'1км ≤ 170с',c:()=>u.bestRun1000<=170&&u.bestRun1000>0}); g.push({n:'3км ≤ 600с',c:()=>u.bestRun3000<=600&&u.bestRun3000>0}); g.push({n:'10км ≤ 2100с',c:()=>u.bestRun10000<=2100&&u.bestRun10000>0}); g.push({n:'Балл ≥ 95',c:()=>u.bestAvgGrade>=95}); g.push({n:'Олимп ≥ 8',c:()=>u.bestOlympiads>=8}); g.push({n:'Жим ≥ 110кг',c:()=>u.bestBenchPress>=110}); }
-      return g;
+    function startJourney() {
+      showScreen('profile');
+      if (!state.sceneMini) initMiniScene();
+      else update3DScene();
+      updateProfileUI();
     }
 
-    function gatesPassed() { return getGates(currentUser.level).every(g => g.c()); }
-
-    function calcISP(grade, olimp) { let s = 0; if (grade>=90) s+=35; else if (grade>=80) s+=20; else if (grade>=70) s+=10; else if (grade>=50) s+=3; s += olimp*15; return Math.round(s*getSPMultiplier(currentUser.level)); }
-    function calcPSP(pu, r1, r3, r10, b, sq, d, pl, bu) { let sp = pu*4; if (r1>0&&r1<=180) sp+=30; else if (r1>0&&r1<=220) sp+=18; else if (r1>0&&r1<=260) sp+=8; if (r3>0&&r3<=630) sp+=25; else if (r3>0&&r3<=750) sp+=14; if (r10>0&&r10<=2100) sp+=40; else if (r10>0&&r10<=2400) sp+=22; else if (r10>0&&r10<=3000) sp+=8; if (b>=100) sp+=20; else if (b>=70) sp+=12; else if (b>=50) sp+=5; if (sq>=120) sp+=22; else if (sq>=80) sp+=12; if (d>=140) sp+=25; else if (d>=100) sp+=14; if (pl>=120) sp+=15; else if (pl>=60) sp+=7; if (bu>=40) sp+=12; else if (bu>=25) sp+=5; return Math.round(sp*getSPMultiplier(currentUser.level)); }
-
-    function addSP(amt, src) {
-      if (currentUser.level >= 100) { showMsg('msgIntellect', 'Максимальный уровень!', 'warning'); return; }
-      if (!gatesPassed()) { showMsg('msgIntellect', 'Не выполнены требования ранга!', 'error'); renderCabinet(); return; }
-      currentUser.spiritPoints += amt;
-      currentUser.history.unshift({ date: new Date().toLocaleString('ru-RU'), type: src, sp: amt });
-      if (currentUser.history.length > 30) currentUser.history.pop();
-      let leveled = false;
-      while (currentUser.level < 100) {
-        const req = getSPRequired(currentUser.level);
-        if (currentUser.spiritPoints >= req && gatesPassed()) {
-          currentUser.spiritPoints -= req;
-          currentUser.level++;
-          leveled = true;
-          if (currentUser.level % 10 === 0) {
-            const r = generateRingYears(currentUser.level, currentUser.spirit.class);
-            currentUser.rings.push({ level: currentUser.level, ...r, beast: rand(BEASTS[r.color]) });
-            currentUser.level += 1;
-          }
-        } else break;
-      }
-      if (currentUser.level >= 100) { currentUser.level = 100; currentUser.spiritPoints = 0; }
-      const users = getUsers();
-      users[currentUser.username] = { ...users[currentUser.username], ...currentUser };
-      saveUsers(users);
-      updateHeader();
-      renderCabinet();
-      if (leveled) showMsg('msgIntellect', `🎉 Уровень повышен! ${getRank(currentUser.level)}`, 'success');
-      else showMsg('msgIntellect', `✅ +${amt} SP!`, 'success');
+    function rankUp() {
+      if (state.rank >= 90) return alert('Максимальный ранг!');
+      state.rank += 10;
+      state.sp += 50;
+      state.coins += 10;
+      
+      const spiritRarity = state.spiritData?.rarity || 'common';
+      const newRingAge = calculateRingAge(state.rank, spiritRarity);
+      state.pendingRing = { age: newRingAge, color: getRingColor(newRingAge) };
+      
+      document.getElementById('ring-offer-area').classList.remove('hidden');
+      document.getElementById('ring-offer-age').textContent = `${newRingAge} лет`;
+      updateProfileUI();
     }
 
-    window.submitIntellect = () => {
-      const g = parseInt(document.getElementById('avgGrade')?.value) || 0;
-      const o = parseInt(document.getElementById('olympiads')?.value) || 0;
-      if (g > currentUser.bestAvgGrade) currentUser.bestAvgGrade = g;
-      if (o > currentUser.bestOlympiads) currentUser.bestOlympiads = o;
-      const sp = calcISP(g, o);
-      if (sp <= 0) { showMsg('msgIntellect', 'Недостаточно.', 'warning'); return; }
-      addSP(sp, 'Интеллект');
-    };
-
-    window.submitPhysical = () => {
-      const pu = parseInt(document.getElementById('pullups')?.value) || 0;
-      const r1 = parseInt(document.getElementById('run1000')?.value) || 0;
-      const r3 = parseInt(document.getElementById('run3000')?.value) || 0;
-      const r10 = parseInt(document.getElementById('run10000')?.value) || 0;
-      const b = parseInt(document.getElementById('benchPress')?.value) || 0;
-      const sq = parseInt(document.getElementById('squat')?.value) || 0;
-      const d = parseInt(document.getElementById('deadlift')?.value) || 0;
-      const pl = parseInt(document.getElementById('plank')?.value) || 0;
-      const bu = parseInt(document.getElementById('burpee')?.value) || 0;
-      if (pu > currentUser.bestPullups) currentUser.bestPullups = pu;
-      if (r1 > 0 && r1 < currentUser.bestRun1000) currentUser.bestRun1000 = r1;
-      if (r3 > 0 && r3 < currentUser.bestRun3000) currentUser.bestRun3000 = r3;
-      if (r10 > 0 && r10 < currentUser.bestRun10000) currentUser.bestRun10000 = r10;
-      if (b > currentUser.bestBenchPress) currentUser.bestBenchPress = b;
-      if (sq > currentUser.bestSquat) currentUser.bestSquat = sq;
-      if (d > currentUser.bestDeadlift) currentUser.bestDeadlift = d;
-      if (pl > currentUser.bestPlank) currentUser.bestPlank = pl;
-      if (bu > currentUser.bestBurpee) currentUser.bestBurpee = bu;
-      const sp = calcPSP(pu, r1, r3, r10, b, sq, d, pl, bu);
-      if (sp <= 0) { showMsg('msgPhysical', 'Недостаточно.', 'warning'); return; }
-      addSP(sp, 'Физуха');
-    };
-
-    function showMsg(id, txt, type) {
-      setTimeout(() => {
-        const el = document.getElementById(id);
-        if (el) { el.textContent = txt; el.className = 'msg ' + type; setTimeout(() => { el.className = 'msg'; el.textContent = ''; }, 4000); }
-      }, 100);
+    function absorbRing() {
+      if (!state.pendingRing) return;
+      state.rings.push(state.pendingRing);
+      state.pendingRing = null;
+      document.getElementById('ring-offer-area').classList.add('hidden');
+      updateRingsList();
+      update3DScene();
+      // анимация активации (упрощённая)
+      alert('🌀 Кольцо поглощено! Эпическая вспышка.');
     }
 
-    function renderCabinet() {
-      const container = document.getElementById('cabinetContent');
-      if (!container || !currentUser) return;
-      const req = getSPRequired(currentUser.level);
-      const prog = currentUser.level >= 100 ? 100 : Math.min(100, (currentUser.spiritPoints / req) * 100);
-      const rank = getRank(currentUser.level);
-      const spirit = currentUser.spirit;
-      const failed = getGates(currentUser.level).filter(g => !g.c());
-
-      // Легенда колец
-      const legendHTML = `
-        <div class="ring-legend">
-          <div class="legend-item"><div class="legend-dot" style="background:radial-gradient(circle,#fff 30%,#ccc 70%);box-shadow:0 0 6px rgba(255,255,255,0.6);"></div> 10 лет (белое)</div>
-          <div class="legend-item"><div class="legend-dot" style="background:radial-gradient(circle,#ffe066 30%,#e6b422 70%);box-shadow:0 0 10px rgba(230,180,34,0.7);"></div> 100 лет (жёлтое)</div>
-          <div class="legend-item"><div class="legend-dot" style="background:radial-gradient(circle,#a78bfa 30%,#7c3aed 70%);box-shadow:0 0 14px rgba(124,58,237,0.8);"></div> 1 000 лет (фиолетовое)</div>
-          <div class="legend-item"><div class="legend-dot" style="background:radial-gradient(circle,#555 30%,#0a0a0a 70%);box-shadow:0 0 10px rgba(0,0,0,0.9);border:1px solid #333;"></div> 10 000 лет (чёрное)</div>
-          <div class="legend-item"><div class="legend-dot" style="background:radial-gradient(circle,#f44 30%,#b91c1c 70%);box-shadow:0 0 22px rgba(255,0,0,0.9);animation:pulseDot 1.5s infinite;"></div> 100 000 лет (красное)</div>
-        </div>
-      `;
-
-      const dotClassMap = { 'white-10': 'dot-white-10', 'yellow-100': 'dot-yellow-100', 'purple-1000': 'dot-purple-1000', 'black-10000': 'dot-black-10000', 'red-100000': 'dot-red-100000' };
-
-      const ringsListHTML = currentUser.rings.map(r => `
-        <div class="ring-info-card">
-          <div class="ring-visual-dot ${dotClassMap[r.type] || 'dot-yellow-100'}"></div>
-          <div>
-            <strong>${r.level} ур.</strong>
-            <span style="color:var(--text-secondary);font-size:0.75rem;">(${r.name})</span>
-            <br><span style="font-size:0.75rem;">${r.beast}</span>
-          </div>
-        </div>
-      `).join('');
-
-      const gatesHTML = failed.length > 0
-        ? `<div class="gate-card"><h3>⛔ Требования</h3><ul class="requirement-list">${failed.map(g => `<li><span>${g.n}</span><span class="req-unmet">Не выполнено</span></li>`).join('')}</ul></div>`
-        : (currentUser.level >= 100 ? `<div class="gate-card" style="background:#d1fae5;border-color:#059669;"><h3 style="color:#065f46;">🏆 Бог-король</h3></div>` : '');
-
-      const histHTML = currentUser.history.length === 0
-        ? '<tr><td colspan="3">Нет записей</td></tr>'
-        : currentUser.history.slice(0, 15).map(h => `<tr><td>${h.date}</td><td>${h.type}</td><td style="color:var(--accent-gold);">+${h.sp}</td></tr>`).join('');
-
-      container.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:2rem;margin-bottom:2rem;">
-          <div>
-            <h2>${spirit.emoji} ${spirit.name} <span class="spirit-class-badge class-${spirit.class.toLowerCase()}">Класс ${spirit.class}</span></h2>
-            <p style="color:var(--text-secondary);">Очки духа: <strong>${currentUser.spiritPoints}</strong> / ${currentUser.level >= 100 ? '—' : req}</p>
-            <div class="user-rank-badge">${rank}</div>
-            <div class="user-level-badge">Ур. ${currentUser.level}</div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-bottom:2rem;">
-          <h3>💍 Духовные кольца</h3>
-          ${legendHTML}
-          <div style="position:relative;margin-top:1rem;" id="canvasWrapper">
-            <div id="threeCanvas"></div>
-            <div class="canvas-overlay">
-              <button class="canvas-btn" id="btnActivate" onclick="window.activateRings()">✨ Активировать</button>
-              <button class="canvas-btn" onclick="window.deactivateRings()">🔻 Скрыть</button>
-              <button class="canvas-btn" onclick="window.reset3DView()">🔄 Сброс</button>
-            </div>
-          </div>
-          <h4 style="margin-top:1.5rem;">Список колец:</h4>
-          <div class="rings-info-grid">${ringsListHTML || '<p style="color:var(--text-secondary);">Колец пока нет.</p>'}</div>
-          ${gatesHTML}
-        </div>
-
-        <h2>📜 Достижения</h2>
-        <div class="grid-2">
-          <div class="card">
-            <h3>🧠 Интеллект</h3>
-            <div class="input-group"><label>Средний балл</label><input type="number" id="avgGrade" value="${currentUser.bestAvgGrade||75}"></div>
-            <div class="input-group"><label>Олимпиады</label><input type="number" id="olympiads" value="${currentUser.bestOlympiads||0}"></div>
-            <button class="btn btn-primary btn-sm" onclick="window.submitIntellect()">Записать</button>
-            <div id="msgIntellect" class="msg"></div>
-          </div>
-          <div class="card">
-            <h3>💪 Тело</h3>
-            <div class="input-group"><label>Подтягивания</label><input type="number" id="pullups" value="${currentUser.bestPullups||5}"></div>
-            <div class="input-group"><label>Бег 1000м (сек)</label><input type="number" id="run1000" value="${currentUser.bestRun1000===Infinity?300:currentUser.bestRun1000}"></div>
-            <div class="input-group"><label>Бег 3000м (сек)</label><input type="number" id="run3000" value="${currentUser.bestRun3000===Infinity?900:currentUser.bestRun3000}"></div>
-            <div class="input-group"><label>Бег 10000м (сек)</label><input type="number" id="run10000" value="${currentUser.bestRun10000===Infinity?0:currentUser.bestRun10000}"></div>
-            <div class="input-group"><label>Жим лёжа (кг)</label><input type="number" id="benchPress" value="${currentUser.bestBenchPress||0}"></div>
-            <div class="input-group"><label>Приседания (кг)</label><input type="number" id="squat" value="${currentUser.bestSquat||0}"></div>
-            <div class="input-group"><label>Становая (кг)</label><input type="number" id="deadlift" value="${currentUser.bestDeadlift||0}"></div>
-            <div class="input-group"><label>Планка (сек)</label><input type="number" id="plank" value="${currentUser.bestPlank||0}"></div>
-            <div class="input-group"><label>Бёрпи (мин)</label><input type="number" id="burpee" value="${currentUser.bestBurpee||0}"></div>
-            <button class="btn btn-primary btn-sm" onclick="window.submitPhysical()">Записать</button>
-            <div id="msgPhysical" class="msg"></div>
-          </div>
-        </div>
-
-        <div class="card" style="margin-top:2rem;">
-          <h2>📋 История</h2>
-          <table class="stat-table"><thead><tr><th>Дата</th><th>Тип</th><th>SP</th></tr></thead><tbody>${histHTML}</tbody></table>
-        </div>
-      `;
-
-      setTimeout(() => init3DScene('threeCanvas', currentUser.rings), 300);
+    function updateProfileUI() {
+      document.getElementById('profile-rank').textContent = state.rank;
+      document.getElementById('sp-balance').textContent = state.sp;
+      document.getElementById('coin-balance').textContent = state.coins;
     }
 
-    // ==================== ИНИЦИАЛИЗАЦИЯ ====================
-    const session = getSession();
-    if (session) { const users = getUsers(); if (users[session.username]) currentUser = { username: session.username, ...users[session.username] }; }
-    updateHeader();
-    window.addEventListener('load', () => { const p = document.getElementById('preloader'); if (p) { p.classList.add('hidden'); setTimeout(() => p.remove(), 600); } });
-    document.getElementById('burger')?.addEventListener('click', () => alert('Мобильное меню'));
-    window.addEventListener('resize', () => {
-      if (renderer3D && document.getElementById('threeCanvas')) {
-        const c = document.getElementById('threeCanvas');
-        renderer3D.setSize(c.clientWidth, c.clientHeight);
-        camera3D.aspect = c.clientWidth / c.clientHeight;
-        camera3D.updateProjectionMatrix();
-      }
+    function updateRingsList() {
+      const container = document.getElementById('rings-list');
+      if (!container) return;
+      container.innerHTML = state.rings.map(r => `
+        <div class="bg-black/40 p-2 rounded border text-center" style="border-color:${r.color}">
+          <span class="text-sm">${r.age} лет</span>
+        </div>`).join('');
+    }
+
+    // Привязка событий
+    document.getElementById('awaken-btn').addEventListener('click', awakenSpirit);
+    document.getElementById('start-journey-btn').addEventListener('click', startJourney);
+    document.getElementById('rank-up-btn').addEventListener('click', rankUp);
+    document.getElementById('absorb-ring-btn').addEventListener('click', absorbRing);
+    document.getElementById('activate-ring-btn').addEventListener('click', ()=>{
+      alert('✨ Активация кольца: свечение и частицы!');
     });
-    console.log('🔥 Soul Land Universe — Кольца как в аниме загружены!');
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const screen = e.target.dataset.screen;
+        if (screen === 'profile') showScreen('profile');
+        else if (screen === '3d') { showScreen('3d'); if(!state.sceneFull) initFullScene(); }
+        else if (screen === 'rings') showScreen('rings');
+        else if (screen === 'wiki') showScreen('wiki');
+        else if (screen === 'shop') showScreen('shop');
+      });
+    });
+
+    // Инициализация начального экрана
+    showScreen('register');
+    // Для дальнейшей разработки: добавить звуки, частицы, лидерборд.
   </script>
 </body>
-    </html>
+</html>
+```
